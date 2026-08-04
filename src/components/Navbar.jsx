@@ -1,16 +1,40 @@
-import React from 'react';
-import { Upload, Plus, Download, RotateCcw, Cloud } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Upload, Plus, Download, RotateCcw, Cloud, Smartphone } from 'lucide-react';
 import { getSyncConfig } from '../utils/syncService';
 
 export default function Navbar({ onOpenImport, onOpenAdd, onExport, onResetData, onOpenSync, totalCount }) {
   const syncConfig = getSyncConfig();
   const hasSyncConfig = syncConfig.provider !== 'none' || syncConfig.googleSheetsUrl || syncConfig.supabaseUrl;
 
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallPWA = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
+
   return (
     <header className="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30">
       <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-2">
         
-        {/* Brand with Attached Logo Icon */}
+        {/* Brand with Logo Icon */}
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 sm:w-9 sm:h-9 bg-white rounded-lg p-0.5 shadow-md flex items-center justify-center overflow-hidden border border-slate-700">
             <img src="/icon.png" alt="Jurnal Kerja Logo" className="w-full h-full object-contain" />
@@ -28,6 +52,18 @@ export default function Navbar({ onOpenImport, onOpenAdd, onExport, onResetData,
         {/* Action Buttons */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           
+          {/* PWA Install Button (Shown when installable) */}
+          {deferredPrompt && (
+            <button
+              onClick={handleInstallPWA}
+              title="Install Aplikasi ke HP"
+              className="p-2 sm:px-3 sm:py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1.5 touch-manipulation animate-pulse"
+            >
+              <Smartphone className="w-4 h-4" />
+              <span className="hidden sm:inline">Install App</span>
+            </button>
+          )}
+
           {/* Cloud Backup Button */}
           <button
             onClick={onOpenSync}
