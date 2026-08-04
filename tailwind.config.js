@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class', // Explicitly use class-based dark mode (prevents phone OS media query override)
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",

@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: dark;
-}
-
 html.dark {
   color-scheme: dark;
   background-color: #020617;
@@ -14,7 +10,7 @@ html.dark {
 
 html:not(.dark) {
   color-scheme: light;
-  background-color: #f8fafc;
+  background-color: #f1f5f9;
   color: #0f172a;
 }
 
