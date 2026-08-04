@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, Plus, Download, RotateCcw, Cloud, Smartphone, Menu, X } from 'lucide-react';
+import { Upload, Download, RotateCcw, Cloud, Smartphone, Menu, X } from 'lucide-react';
 import { getSyncConfig } from '../utils/syncService';
 
-export default function Navbar({ onOpenImport, onOpenAdd, onExport, onResetData, onOpenSync, totalCount }) {
+export default function Navbar({ onOpenImport, onExport, onResetData, onOpenSync, totalCount }) {
   const syncConfig = getSyncConfig();
   const hasSyncConfig = syncConfig.provider !== 'none' || syncConfig.googleSheetsUrl || syncConfig.supabaseUrl;
 
@@ -44,28 +44,21 @@ export default function Navbar({ onOpenImport, onOpenAdd, onExport, onResetData,
             <h1 className="text-sm sm:text-base font-bold text-white tracking-tight flex items-center gap-1.5">
               Jurnal Kerja
               <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1.5 py-0.2 rounded-full font-medium">
-                {totalCount}
+                {totalCount} Log
               </span>
             </h1>
           </div>
         </div>
 
-        {/* 📱 MOBILE QUICK HEADER (<640px) */}
+        {/* 📱 MOBILE HEADER BUTTON (<640px) */}
         <div className="flex items-center gap-2 sm:hidden">
           <button
-            onClick={onOpenAdd}
-            className="px-3 py-1.5 bg-indigo-600 active:bg-indigo-500 text-white rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1 touch-manipulation"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Tambah</span>
-          </button>
-
-          <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-slate-300 hover:text-white bg-slate-800/80 active:bg-slate-800 rounded-lg border border-slate-700/80 transition touch-manipulation relative"
-            aria-label="Buka Menu"
+            className="p-2 text-slate-300 hover:text-white bg-slate-800/80 active:bg-slate-800 rounded-lg border border-slate-700/80 transition touch-manipulation relative flex items-center gap-1.5 text-xs font-semibold"
+            aria-label="Menu"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            <span>Menu</span>
             {hasSyncConfig && (
               <span className="w-2 h-2 rounded-full bg-emerald-500 absolute top-1 right-1"></span>
             )}
@@ -92,26 +85,10 @@ export default function Navbar({ onOpenImport, onOpenAdd, onExport, onResetData,
             className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition border border-slate-700/80 flex items-center gap-1.5 touch-manipulation relative"
           >
             <Cloud className={`w-4 h-4 ${hasSyncConfig ? 'text-emerald-400' : 'text-sky-400'}`} />
-            <span>Backup</span>
+            <span>Backup Cloud</span>
             {hasSyncConfig && (
               <span className="w-2 h-2 rounded-full bg-emerald-500 absolute -top-0.5 -right-0.5 animate-pulse"></span>
             )}
-          </button>
-
-          <button
-            onClick={onResetData}
-            title="Reset Sample Data"
-            className="p-2 text-slate-400 hover:text-slate-200 active:bg-slate-800 rounded-lg transition touch-manipulation"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={onExport}
-            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition border border-slate-700/80 flex items-center gap-1.5 touch-manipulation"
-          >
-            <Download className="w-4 h-4 text-emerald-400" />
-            <span>Export</span>
           </button>
 
           <button
@@ -123,11 +100,19 @@ export default function Navbar({ onOpenImport, onOpenAdd, onExport, onResetData,
           </button>
 
           <button
-            onClick={onOpenAdd}
-            className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1 touch-manipulation"
+            onClick={onExport}
+            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition border border-slate-700/80 flex items-center gap-1.5 touch-manipulation"
           >
-            <Plus className="w-4 h-4" />
-            <span>Tambah</span>
+            <Download className="w-4 h-4 text-emerald-400" />
+            <span>Export CSV</span>
+          </button>
+
+          <button
+            onClick={onResetData}
+            title="Reset Sample Data"
+            className="p-2 text-slate-400 hover:text-slate-200 active:bg-slate-800 rounded-lg transition touch-manipulation"
+          >
+            <RotateCcw className="w-4 h-4" />
           </button>
 
         </div>
@@ -141,7 +126,7 @@ export default function Navbar({ onOpenImport, onOpenAdd, onExport, onResetData,
           {deferredPrompt && (
             <button
               onClick={() => { handleInstallPWA(); setMobileMenuOpen(false); }}
-              className="w-full py-2.5 px-3 bg-indigo-600 text-white rounded-lg text-xs font-bold flex items-center gap-2"
+              className="w-full py-2.5 px-3 bg-indigo-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2"
             >
               <Smartphone className="w-4 h-4" />
               <span>Install Aplikasi Ke HP</span>
