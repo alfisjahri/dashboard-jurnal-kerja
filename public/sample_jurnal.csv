@@ -1,0 +1,6 @@
+ID,Tanggal,Kegiatan,Kategori,Status,Durasi
+JRN-101,2026-08-04,Implementasi fitur import file CSV pada dashboard jurnal kerja,Pengembangan,Selesai,2 jam
+JRN-102,2026-08-04,Sinkronisasi dan testing integrasi datepicker filter rentang tanggal,Pengujian,Selesai,1 jam
+JRN-103,2026-08-03,Membuat dokumentasi cara memasukkan file CSV skema ID Tanggal Kegiatan,Dokumentasi,Selesai,1.5 jam
+JRN-104,2026-08-02,Desain skema tabel interaktif dengan Tailwind CSS dan lucide icons,Pengembangan,Selesai,3 jam
+JRN-105,2026-08-01,Rapat evaluasi progres sprint mingguan bersama manajer proyek,Rapat,Selesai,1 jam
