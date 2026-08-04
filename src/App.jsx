@@ -6,14 +6,41 @@ import ActivityTable from './components/ActivityTable';
 import ActivityModal from './components/ActivityModal';
 import CsvImportModal from './components/CsvImportModal';
 import SyncSettingsModal from './components/SyncSettingsModal';
+import ConfirmModal from './components/ConfirmModal';
 import { INITIAL_JURNAL_DATA } from './utils/sampleData';
 import { downloadCSV } from './utils/csvParser';
 import { triggerAutoSync, getSyncConfig } from './utils/syncService';
-import { CheckCircle2, Trash2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
 const STORAGE_KEY = 'jurnal_kerja_records_v1';
+const THEME_KEY = 'jurnal_kerja_theme_v1';
 
 export default function App() {
+  // Theme State ('dark' | 'light')
+  const [theme, setTheme] = useState(() => {
+    try {
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      if (savedTheme) return savedTheme;
+    } catch (e) {}
+    return 'dark'; // Default obsidian dark
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch (e) {}
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
+  // Main Jurnal Data State
   const [jurnalList, setJurnalList] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -38,8 +65,15 @@ export default function App() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
 
-  // Delete Confirmation Modal State
-  const [deletingItem, setDeletingItem] = useState(null);
+  // Confirmation Modals State (Replacing native window.confirm)
+  const [confirmModalConfig, setConfirmModalConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmText: 'Ya, Lanjutkan',
+    variant: 'danger',
+    onConfirm: () => {}
+  });
 
   // Notification Toast State
   const [toastMessage, setToastMessage] = useState(null);
@@ -101,25 +135,49 @@ export default function App() {
     setIsActivityModalOpen(true);
   };
 
-  const handleOpenAddModal = () => {
-    setEditingItem(null);
-    setIsActivityModalOpen(true);
-  };
-
-  const handleConfirmDelete = (item) => {
-    setDeletingItem(item);
-  };
-
-  const executeDelete = () => {
-    if (!deletingItem) return;
-    setJurnalList(prev => prev.filter(item => item.id !== deletingItem.id));
-    showToast(getSyncToastMessage(`Kegiatan (${deletingItem.id}) dihapus`));
-    setDeletingItem(null);
+  const handleConfirmSingleDelete = (item) => {
+    setConfirmModalConfig({
+      isOpen: true,
+      title: 'Hapus Kegiatan?',
+      message: `Anda yakin ingin menghapus kegiatan (${item.id}): "${item.kegiatan}"?`,
+      confirmText: 'Hapus Kegiatan',
+      variant: 'danger',
+      onConfirm: () => {
+        setJurnalList(prev => prev.filter(i => i.id !== item.id));
+        showToast(getSyncToastMessage(`Kegiatan (${item.id}) dihapus`));
+      }
+    });
   };
 
   const handleBulkDelete = (idsToDelete) => {
-    setJurnalList(prev => prev.filter(item => !idsToDelete.includes(item.id)));
-    showToast(getSyncToastMessage(`${idsToDelete.length} kegiatan dihapus`));
+    setConfirmModalConfig({
+      isOpen: true,
+      title: 'Hapus Kegiatan Terpilih?',
+      message: `Anda yakin ingin menghapus ${idsToDelete.length} kegiatan yang dipilih secara permanen?`,
+      confirmText: `Hapus ${idsToDelete.length} Item`,
+      variant: 'danger',
+      onConfirm: () => {
+        setJurnalList(prev => prev.filter(item => !idsToDelete.includes(item.id)));
+        showToast(getSyncToastMessage(`${idsToDelete.length} kegiatan dihapus`));
+      }
+    });
+  };
+
+  const handleResetData = () => {
+    setConfirmModalConfig({
+      isOpen: true,
+      title: 'Reset Ke Sample Awal?',
+      message: 'Semua catatan kegiatan akan dikembalikan ke data sampel awal. Tindakan ini tidak dapat dibatalkan.',
+      confirmText: 'Reset Data',
+      variant: 'warning',
+      onConfirm: () => {
+        setJurnalList(INITIAL_JURNAL_DATA);
+        setSearchTerm('');
+        setStartDate('');
+        setEndDate('');
+        showToast(getSyncToastMessage('Data di-reset ke sampel awal'));
+      }
+    });
   };
 
   const handleImportSuccess = (newRecords, mode) => {
@@ -135,21 +193,11 @@ export default function App() {
 
   const handleExportCSV = () => {
     if (filteredData.length === 0) {
-      alert('Tidak ada data untuk diexport.');
+      showToast('Tidak ada data untuk diexport.');
       return;
     }
     downloadCSV(filteredData, `jurnal_kerja_${new Date().toISOString().split('T')[0]}.csv`);
     showToast('File CSV berhasil diunduh!');
-  };
-
-  const handleResetData = () => {
-    if (window.confirm('Apakah Anda yakin ingin mengembalikan data ke contoh awal?')) {
-      setJurnalList(INITIAL_JURNAL_DATA);
-      setSearchTerm('');
-      setStartDate('');
-      setEndDate('');
-      showToast(getSyncToastMessage('Data di-reset ke sampel awal'));
-    }
   };
 
   const handleClearFilters = () => {
@@ -159,30 +207,32 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased font-sans">
+    <div className={`min-h-screen transition-colors font-sans antialiased ${
+      theme === 'dark' ? 'bg-slate-950 text-slate-100 dark' : 'bg-slate-50 text-slate-900'
+    }`}>
       
       {/* Streamlined Navbar */}
       <Navbar
         onOpenImport={() => setIsImportModalOpen(true)}
-        onOpenAdd={handleOpenAddModal}
         onExport={handleExportCSV}
         onResetData={handleResetData}
         onOpenSync={() => setIsSyncModalOpen(true)}
-        totalCount={jurnalList.length}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4">
         
-        {/* Toast Notification */}
+        {/* Modern Toast Notification */}
         {toastMessage && (
-          <div className="fixed bottom-6 right-6 z-50 bg-slate-900 border border-indigo-500/40 text-slate-100 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-up">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-            <span className="text-sm font-medium">{toastMessage}</span>
+          <div className="fixed bottom-6 right-6 z-50 bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-500/40 text-slate-900 dark:text-slate-100 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 animate-slide-up">
+            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+            <span className="text-xs sm:text-sm font-semibold">{toastMessage}</span>
           </div>
         )}
 
-        {/* 📝 Direct Quick Add Activity Form (Replaces info metric cards) */}
+        {/* 📝 Direct Quick Add Activity Form */}
         <QuickAddForm onAdd={handleSaveActivity} />
 
         {/* Clean Date Filter & Search */}
@@ -200,14 +250,14 @@ export default function App() {
         <ActivityTable
           data={filteredData}
           onEdit={handleOpenEditModal}
-          onDelete={handleConfirmDelete}
+          onDelete={handleConfirmSingleDelete}
           onBulkDelete={handleBulkDelete}
         />
 
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-900/80 py-4 text-center text-xs text-slate-500 bg-slate-950">
+      <footer className="border-t border-slate-200 dark:border-slate-900/80 py-4 text-center text-xs text-slate-500 bg-white dark:bg-slate-950 transition-colors">
         <p>Dashboard Jurnal Kerja • Realtime Auto-Sync Cloud (Google Sheets & Supabase)</p>
       </footer>
 
@@ -232,34 +282,16 @@ export default function App() {
         onSyncSuccess={() => showToast('Sinkronisasi Cloud Berhasil!')}
       />
 
-      {/* Delete Confirmation Modal */}
-      {deletingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center">
-            <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto mb-4">
-              <Trash2 className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-bold text-white mb-2">Hapus Kegiatan?</h3>
-            <p className="text-xs text-slate-400 mb-6">
-              Anda yakin ingin menghapus kegiatan <span className="text-indigo-400 font-mono font-semibold">{deletingItem.id}</span>?
-            </p>
-            <div className="flex items-center justify-center gap-3">
-              <button
-                onClick={() => setDeletingItem(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-medium transition"
-              >
-                Batal
-              </button>
-              <button
-                onClick={executeDelete}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-sm font-semibold transition"
-              >
-                Hapus
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modern Confirmation Modal */}
+      <ConfirmModal
+        isOpen={confirmModalConfig.isOpen}
+        onClose={() => setConfirmModalConfig({ ...confirmModalConfig, isOpen: false })}
+        onConfirm={confirmModalConfig.onConfirm}
+        title={confirmModalConfig.title}
+        message={confirmModalConfig.message}
+        confirmText={confirmModalConfig.confirmText}
+        variant={confirmModalConfig.variant}
+      />
 
     </div>
   );

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, Download, RotateCcw, Cloud, Smartphone, Menu, X } from 'lucide-react';
+import { Upload, Download, RotateCcw, Cloud, Smartphone, Menu, X, Sun, Moon } from 'lucide-react';
 import { getSyncConfig } from '../utils/syncService';
 
-export default function Navbar({ onOpenImport, onExport, onResetData, onOpenSync, totalCount }) {
+export default function Navbar({ onOpenImport, onExport, onResetData, onOpenSync, theme, toggleTheme }) {
   const syncConfig = getSyncConfig();
   const hasSyncConfig = syncConfig.provider !== 'none' || syncConfig.googleSheetsUrl || syncConfig.supabaseUrl;
 
@@ -32,29 +32,35 @@ export default function Navbar({ onOpenImport, onExport, onResetData, onOpenSync
   };
 
   return (
-    <header className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30">
+    <header className="bg-white/90 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 transition-colors">
       <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
         
-        {/* Brand with Logo */}
+        {/* Brand with Logo (No badge count) */}
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 bg-white rounded-lg p-0.5 shadow-md flex items-center justify-center overflow-hidden border border-slate-700">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 bg-white rounded-lg p-0.5 shadow-md flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700">
             <img src="/icon.png" alt="Jurnal Kerja Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="text-sm sm:text-base font-bold text-white tracking-tight flex items-center gap-1.5">
+            <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
               Jurnal Kerja
-              <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1.5 py-0.2 rounded-full font-medium">
-                {totalCount} Log
-              </span>
             </h1>
           </div>
         </div>
 
         {/* 📱 MOBILE HEADER BUTTON (<640px) */}
         <div className="flex items-center gap-2 sm:hidden">
+          {/* Theme Toggle Button Mobile */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 transition touch-manipulation"
+            title="Ganti Tema"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+          </button>
+
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-slate-300 hover:text-white bg-slate-800/80 active:bg-slate-800 rounded-lg border border-slate-700/80 transition touch-manipulation relative flex items-center gap-1.5 text-xs font-semibold"
+            className="p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700/80 transition touch-manipulation relative flex items-center gap-1.5 text-xs font-semibold"
             aria-label="Menu"
           >
             {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -68,6 +74,15 @@ export default function Navbar({ onOpenImport, onExport, onResetData, onOpenSync
         {/* 💻 DESKTOP ACTIONS (>=640px) */}
         <div className="hidden sm:flex items-center gap-2">
           
+          {/* Theme Toggle Button Desktop */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-700 transition touch-manipulation"
+            title={theme === 'dark' ? "Beralih ke Tema Terang (Light)" : "Beralih ke Tema Gelap (Dark)"}
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+          </button>
+
           {deferredPrompt && (
             <button
               onClick={handleInstallPWA}
@@ -82,9 +97,9 @@ export default function Navbar({ onOpenImport, onExport, onResetData, onOpenSync
           <button
             onClick={onOpenSync}
             title="Cadangkan / Backup Ke Cloud"
-            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition border border-slate-700/80 flex items-center gap-1.5 touch-manipulation relative"
+            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-medium transition border border-slate-200 dark:border-slate-700/80 flex items-center gap-1.5 touch-manipulation relative"
           >
-            <Cloud className={`w-4 h-4 ${hasSyncConfig ? 'text-emerald-400' : 'text-sky-400'}`} />
+            <Cloud className={`w-4 h-4 ${hasSyncConfig ? 'text-emerald-500' : 'text-sky-500'}`} />
             <span>Backup Cloud</span>
             {hasSyncConfig && (
               <span className="w-2 h-2 rounded-full bg-emerald-500 absolute -top-0.5 -right-0.5 animate-pulse"></span>
@@ -93,24 +108,24 @@ export default function Navbar({ onOpenImport, onExport, onResetData, onOpenSync
 
           <button
             onClick={onOpenImport}
-            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition border border-slate-700/80 flex items-center gap-1.5 touch-manipulation"
+            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-medium transition border border-slate-200 dark:border-slate-700/80 flex items-center gap-1.5 touch-manipulation"
           >
-            <Upload className="w-4 h-4 text-sky-400" />
+            <Upload className="w-4 h-4 text-sky-500" />
             <span>Import CSV</span>
           </button>
 
           <button
             onClick={onExport}
-            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition border border-slate-700/80 flex items-center gap-1.5 touch-manipulation"
+            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-medium transition border border-slate-200 dark:border-slate-700/80 flex items-center gap-1.5 touch-manipulation"
           >
-            <Download className="w-4 h-4 text-emerald-400" />
+            <Download className="w-4 h-4 text-emerald-500" />
             <span>Export CSV</span>
           </button>
 
           <button
             onClick={onResetData}
             title="Reset Sample Data"
-            className="p-2 text-slate-400 hover:text-slate-200 active:bg-slate-800 rounded-lg transition touch-manipulation"
+            className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition touch-manipulation"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -121,7 +136,7 @@ export default function Navbar({ onOpenImport, onExport, onResetData, onOpenSync
 
       {/* 📱 MOBILE DROPDOWN DRAWER (<640px) */}
       {mobileMenuOpen && (
-        <div className="sm:hidden border-t border-slate-800 bg-slate-900/95 p-3 space-y-2 animate-fade-in shadow-2xl">
+        <div className="sm:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-3 space-y-2 animate-fade-in shadow-2xl">
           
           {deferredPrompt && (
             <button
@@ -135,36 +150,36 @@ export default function Navbar({ onOpenImport, onExport, onResetData, onOpenSync
 
           <button
             onClick={() => { onOpenSync(); setMobileMenuOpen(false); }}
-            className="w-full py-2.5 px-3 bg-slate-800 active:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center justify-between border border-slate-700/80"
+            className="w-full py-2.5 px-3 bg-slate-100 dark:bg-slate-800 active:bg-slate-200 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-medium flex items-center justify-between border border-slate-200 dark:border-slate-700/80"
           >
             <div className="flex items-center gap-2">
-              <Cloud className={`w-4 h-4 ${hasSyncConfig ? 'text-emerald-400' : 'text-sky-400'}`} />
+              <Cloud className={`w-4 h-4 ${hasSyncConfig ? 'text-emerald-500' : 'text-sky-500'}`} />
               <span>Backup Cloud (Google Sheets / Supabase)</span>
             </div>
-            {hasSyncConfig && <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-semibold">Aktif</span>}
+            {hasSyncConfig && <span className="text-[10px] bg-emerald-500/20 text-emerald-500 font-semibold px-2 py-0.5 rounded">Aktif</span>}
           </button>
 
           <div className="grid grid-cols-2 gap-2 pt-1">
             <button
               onClick={() => { onOpenImport(); setMobileMenuOpen(false); }}
-              className="py-2.5 px-3 bg-slate-800 active:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 border border-slate-700/80"
+              className="py-2.5 px-3 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-700/80"
             >
-              <Upload className="w-4 h-4 text-sky-400" />
+              <Upload className="w-4 h-4 text-sky-500" />
               <span>Import CSV</span>
             </button>
 
             <button
               onClick={() => { onExport(); setMobileMenuOpen(false); }}
-              className="py-2.5 px-3 bg-slate-800 active:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 border border-slate-700/80"
+              className="py-2.5 px-3 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-700/80"
             >
-              <Download className="w-4 h-4 text-emerald-400" />
+              <Download className="w-4 h-4 text-emerald-500" />
               <span>Export CSV</span>
             </button>
           </div>
 
           <button
             onClick={() => { onResetData(); setMobileMenuOpen(false); }}
-            className="w-full py-2 px-3 text-slate-400 hover:text-slate-200 active:bg-slate-800 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition"
+            className="w-full py-2 px-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset Data Sample</span>
