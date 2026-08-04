@@ -2,10 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-slate-950 text-slate-100 min-h-screen selection:bg-indigo-500 selection:text-white;
-  }
+:root {
+  color-scheme: dark;
+}
+
+html.dark {
+  color-scheme: dark;
+  background-color: #020617;
+  color: #f8fafc;
+}
+
+html:not(.dark) {
+  color-scheme: light;
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+body {
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Custom scrollbars */
@@ -14,15 +29,18 @@
   height: 8px;
 }
 
-::-webkit-scrollbar-track {
+html.dark ::-webkit-scrollbar-track {
   background: #0f172a;
 }
-
-::-webkit-scrollbar-thumb {
+html.dark ::-webkit-scrollbar-thumb {
   background: #334155;
   border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+html:not(.dark) ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+html:not(.dark) ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
 }

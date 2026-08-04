@@ -25,14 +25,27 @@ export default function App() {
     return 'dark'; // Default obsidian dark
   });
 
+  // Dynamic Totalistic Theme Management (Body, Meta Theme Color, Apple Status Bar, CSS Color Scheme)
   useEffect(() => {
     try {
       localStorage.setItem(THEME_KEY, theme);
     } catch (e) {}
+
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    const metaAppleStatusBar = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
+      document.documentElement.style.colorScheme = 'dark';
+      document.body.style.backgroundColor = '#020617';
+      if (metaThemeColor) metaThemeColor.setAttribute('content', '#020617');
+      if (metaAppleStatusBar) metaAppleStatusBar.setAttribute('content', 'black-translucent');
     } else {
       document.documentElement.classList.remove('dark');
+      document.documentElement.style.colorScheme = 'light';
+      document.body.style.backgroundColor = '#f8fafc';
+      if (metaThemeColor) metaThemeColor.setAttribute('content', '#ffffff');
+      if (metaAppleStatusBar) metaAppleStatusBar.setAttribute('content', 'default');
     }
   }, [theme]);
 
@@ -65,7 +78,7 @@ export default function App() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
 
-  // Confirmation Modals State (Replacing native window.confirm)
+  // Confirmation Modals State
   const [confirmModalConfig, setConfirmModalConfig] = useState({
     isOpen: false,
     title: '',
