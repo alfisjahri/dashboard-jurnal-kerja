@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
-import SummaryCards from './components/SummaryCards';
+import QuickAddForm from './components/QuickAddForm';
 import DateFilter from './components/DateFilter';
 import ActivityTable from './components/ActivityTable';
 import ActivityModal from './components/ActivityModal';
@@ -44,11 +44,10 @@ export default function App() {
   // Notification Toast State
   const [toastMessage, setToastMessage] = useState(null);
 
-  // Unconditional Auto-Sync & LocalStorage Save on ANY change to jurnalList
+  // Auto-Sync & LocalStorage Save on ANY change to jurnalList
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(jurnalList));
-      // Automatically triggers background sync to Google Sheets / Supabase
       triggerAutoSync(jurnalList);
     } catch (e) {
       console.error('Gagal menyimpan ke localStorage:', e);
@@ -173,7 +172,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4">
         
         {/* Toast Notification */}
         {toastMessage && (
@@ -183,8 +182,8 @@ export default function App() {
           </div>
         )}
 
-        {/* Minimal Summary Metrics */}
-        <SummaryCards data={jurnalList} filteredCount={filteredData.length} />
+        {/* 📝 Direct Quick Add Activity Form (Replaces info metric cards) */}
+        <QuickAddForm onAdd={handleSaveActivity} />
 
         {/* Clean Date Filter & Search */}
         <DateFilter
