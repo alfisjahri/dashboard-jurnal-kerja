@@ -25,7 +25,7 @@ export default function App() {
     return 'dark'; // Default obsidian dark
   });
 
-  // Dynamic Totalistic Theme Management (Body, Meta Theme Color, Apple Status Bar, CSS Color Scheme)
+  // Pure Harmonious Theme Sync
   useEffect(() => {
     try {
       localStorage.setItem(THEME_KEY, theme);
@@ -43,7 +43,7 @@ export default function App() {
     } else {
       document.documentElement.classList.remove('dark');
       document.documentElement.style.colorScheme = 'light';
-      document.body.style.backgroundColor = '#f8fafc';
+      document.body.style.backgroundColor = '#f1f5f9';
       if (metaThemeColor) metaThemeColor.setAttribute('content', '#ffffff');
       if (metaAppleStatusBar) metaAppleStatusBar.setAttribute('content', 'default');
     }
@@ -220,9 +220,7 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen transition-colors font-sans antialiased ${
-      theme === 'dark' ? 'bg-slate-950 text-slate-100 dark' : 'bg-slate-50 text-slate-900'
-    }`}>
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased transition-colors duration-200">
       
       {/* Streamlined Navbar */}
       <Navbar
@@ -239,7 +237,7 @@ export default function App() {
         
         {/* Modern Toast Notification */}
         {toastMessage && (
-          <div className="fixed bottom-6 right-6 z-50 bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-500/40 text-slate-900 dark:text-slate-100 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 animate-slide-up">
+          <div className="fixed bottom-6 right-6 z-50 bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-indigo-500/40 text-slate-900 dark:text-slate-100 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 animate-slide-up">
             <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
             <span className="text-xs sm:text-sm font-semibold">{toastMessage}</span>
           </div>
